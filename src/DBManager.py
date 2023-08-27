@@ -13,11 +13,13 @@ class DBManager:
 
         conn = psycopg2.connect(dbname=self.name_database, **self.params)
         with conn.cursor() as cur:
-            cur.execute('SELECT company_name, COUNT(*) AS "Кол-во вакансий" '
-                        'FROM companies '
-                        'INNER JOIN vacancies USING(company_id) '
-                        'GROUP BY company_id '
-                        'ORDER BY "Кол-во вакансий" DESC')
+            cur.execute("""
+            SELECT company_name, COUNT(*) AS "Кол-во вакансий"
+            FROM companies
+            INNER JOIN vacancies USING(company_id)
+            GROUP BY company_id
+            ORDER BY "Кол-во вакансий" DESC
+            """)
             rows = cur.fetchall()
             for row in rows:
                 print(f'В компании "{row[0]}" - {row[1]} вакансий.')
