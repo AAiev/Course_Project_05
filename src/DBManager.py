@@ -90,9 +90,12 @@ class DBManager:
             WHERE vacancy_name LIKE '%{word}%'
             """)
             rows = cur.fetchall()
-            for row in rows:
-                salary = row[2]
-                if row[2] == 0:
-                    salary = 'не указана'
-                print(f'"{row[0]}": "{row[1]}". '
-                      f'Зарплата - {salary}. Ссылка на вакансию: {row[3]}')
+            if rows:
+                for row in rows:
+                    salary = row[2]
+                    if row[2] == 0:
+                        salary = 'не указана'
+                    print(f'"{row[0]}": "{row[1]}". '
+                          f'Зарплата - {salary}. Ссылка на вакансию: {row[3]}')
+            else:
+                print('Вакансии не найдены')
