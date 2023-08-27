@@ -56,12 +56,11 @@ def create_database(NAME_DATABASE: str, params: dict):
         cur.execute("""
             CREATE TABLE vacancies (
                 vacancy_id SERIAL PRIMARY KEY,
-                name VARCHAR(255) NOT NULL,
+                vacancy_name VARCHAR(255) NOT NULL,
                 company_id INT REFERENCES companies(company_id),
-                salary_from INTEGER,
-                salary_to INTEGER,
+                salary INTEGER,
                 salary_currency VARCHAR,
-                url TEXT
+                vacancy_url TEXT
             )
         """)
 
@@ -85,31 +84,28 @@ def save_data_in_database(list_vacancies:list[list[dict]], NAME_DATABASE, params
         for vacancies_company in list_vacancies:
             for data_vacancy in vacancies_company:
                 if data_vacancy['salary'] == None:
-                    salary_from = 0
-                    salary_to = 0
+                    salary = 0
                     salary_currency = 'RUR'
                 elif data_vacancy['salary']['from'] == None:
-                    salary_from = 0
-                    salary_to = data_vacancy['salary']['to']
+                    salary = data_vacancy['salary']['to']
                     salary_currency = data_vacancy['salary']['currency']
                 elif data_vacancy['salary']['to'] == None:
-                    salary_from = data_vacancy['salary']['from']
-                    salary_to = 0
+                    salary = data_vacancy['salary']['from']
+                    salary_currency = data_vacancy['salary']['currency']
+                elif data_vacancy['salary']['to'] == data_vacancy['salary']['from']:
+                    salary = data_vacancy['salary']['from']
                     salary_currency = data_vacancy['salary']['currency']
                 else:
-                    salary_from = data_vacancy['salary']['from']
-                    salary_to = data_vacancy['salary']['to']
+                    salary = (data_vacancy['salary']['from'] + data_vacancy['salary']['to']) / 2
                     salary_currency = data_vacancy['salary']['currency']
                 cur.execute("""
-                INSERT INTO vacancies (vacancy_id, name, 
-                company_id, 
-                salary_from, salary_to, 
-                salary_currency, url)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO vacancies (vacancy_id, vacancy_name, 
+                company_id, salary, 
+                salary_currency, vacancy_url)
+                VALUES (%s, %s, %s, %s, %s, %s)
                 """,
                 (data_vacancy['id'], data_vacancy['name'],
-                 data_vacancy['employer']['id'],
-                 salary_from, salary_to,
+                 data_vacancy['employer']['id'], salary,
                  salary_currency, data_vacancy['alternate_url'])
                 )
 
