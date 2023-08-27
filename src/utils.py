@@ -2,6 +2,7 @@ import requests
 import json
 import psycopg2
 
+
 class ParsingError(Exception):
     """Общий класс для API"""
 
@@ -33,16 +34,17 @@ def get_request(employer_id=None, url='https://api.hh.ru/vacancies'):
     else:
         return list_vacancies
 
-def create_database(NAME_DATABASE: str, params: dict):
+
+def create_database(name_database: str, params: dict):
     conn = psycopg2.connect(dbname='postgres', **params)
     conn.autocommit = True
     cur = conn.cursor()
-    cur.execute(f"DROP DATABASE IF EXISTS {NAME_DATABASE}")
-    cur.execute(f"CREATE DATABASE {NAME_DATABASE}")
+    cur.execute(f"DROP DATABASE IF EXISTS {name_database}")
+    cur.execute(f"CREATE DATABASE {name_database}")
 
     conn.close()
 
-    conn = psycopg2.connect(dbname=NAME_DATABASE, **params)
+    conn = psycopg2.connect(dbname=name_database, **params)
 
     with conn.cursor() as cur:
         cur.execute("""
@@ -67,8 +69,9 @@ def create_database(NAME_DATABASE: str, params: dict):
     conn.commit()
     conn.close()
 
-def save_data_in_database(list_vacancies:list[list[dict]], NAME_DATABASE, params):
-    conn = psycopg2.connect(dbname=NAME_DATABASE, **params)
+
+def save_data_in_database(list_vacancies: list[list[dict]], name_database, params):
+    conn = psycopg2.connect(dbname=name_database, **params)
 
     with conn.cursor() as cur:
         for vacancy in list_vacancies:
@@ -77,19 +80,18 @@ def save_data_in_database(list_vacancies:list[list[dict]], NAME_DATABASE, params
             INSERT INTO companies (company_id, company_name)
             VALUES (%s, %s)
             """,
-            (data_company['employer']['id'], data_company['employer']['name'])
-            )
+                        (data_company['employer']['id'], data_company['employer']['name']))
 
     with conn.cursor() as cur:
         for vacancies_company in list_vacancies:
             for data_vacancy in vacancies_company:
-                if data_vacancy['salary'] == None:
+                if data_vacancy['salary'] is None:
                     salary = 0
                     salary_currency = 'RUR'
-                elif data_vacancy['salary']['from'] == None:
+                elif data_vacancy['salary']['from'] is None:
                     salary = data_vacancy['salary']['to']
                     salary_currency = data_vacancy['salary']['currency']
-                elif data_vacancy['salary']['to'] == None:
+                elif data_vacancy['salary']['to'] is None:
                     salary = data_vacancy['salary']['from']
                     salary_currency = data_vacancy['salary']['currency']
                 elif data_vacancy['salary']['to'] == data_vacancy['salary']['from']:
@@ -104,10 +106,10 @@ def save_data_in_database(list_vacancies:list[list[dict]], NAME_DATABASE, params
                 salary_currency, vacancy_url)
                 VALUES (%s, %s, %s, %s, %s, %s)
                 """,
-                (data_vacancy['id'], data_vacancy['name'],
-                 data_vacancy['employer']['id'], salary,
-                 salary_currency, data_vacancy['alternate_url'])
-                )
+                            (data_vacancy['id'], data_vacancy['name'],
+                             data_vacancy['employer']['id'], salary,
+                             salary_currency, data_vacancy['alternate_url'])
+                            )
 
     conn.commit()
     conn.close()
