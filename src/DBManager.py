@@ -1,14 +1,26 @@
+import psycopg2
 
 
 class DBManager:
-    def __init__(self):
-        pass
+    def __init__(self, name_database, params):
+        self.name_database = name_database
+        self.params = params
 
     def get_companies_and_vacancies_count(self):
         """
         получает список всех компаний и количество вакансий у каждой компании.
         """
-        pass
+
+        conn = psycopg2.connect(dbname=self.name_database, **self.params)
+        with conn.cursor() as cur:
+            cur.execute('SELECT company_name, COUNT(*) AS "Кол-во вакансий" '
+                        'FROM companies '
+                        'INNER JOIN vacancies '
+                        'USING(company_id) GROUP BY company_id '
+                        'ORDER BY "Кол-во вакансий" DESC')
+            rows = cur.fetchall()
+            for row in rows:
+                print(row)
 
     def get_all_vacancies(self):
         """
