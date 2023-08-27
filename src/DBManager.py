@@ -28,12 +28,14 @@ class DBManager:
         """
         conn = psycopg2.connect(dbname=self.name_database, **self.params)
         with conn.cursor() as cur:
-            cur.execute('SELECT companies.company_name, vacancy_name, ((salary_from + salary_to)/2) AS salary, vacancy_url '
-                        'FROM vacancies '
-                        'INNER JOIN companies '
-                        'USING (company_id) '
-                        "WHERE ((salary_from + salary_to)/2) > 0 AND salary_currency = "RUR"')
-                        'ORDER BY salary DESC')
+            cur.execute("""
+            SELECT companies.company_name, vacancy_name, ((salary_from + salary_to)/2) AS salary, vacancy_url 
+            FROM vacancies
+            INNER JOIN companies
+            USING (company_id)
+            WHERE ((salary_from + salary_to)/2) > 0 AND salary_currency = 'RUR'
+            ORDER BY salary DESC
+            """)
             rows = cur.fetchall()
             for row in rows:
                 print(f'В компании "{row[0]}" имеется вакансия "{row[1]}".'
