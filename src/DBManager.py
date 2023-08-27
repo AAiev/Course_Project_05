@@ -48,14 +48,14 @@ class DBManager:
         conn = psycopg2.connect(dbname=self.name_database, **self.params)
         with conn.cursor() as cur:
             cur.execute("""
-                    SELECT company_name, ROUND(AVG(salary), 0) AS "Средняя зарплата" 
-                    FROM companies 
-                    JOIN vacancies 
-                    USING (company_id) 
-                    WHERE salary > 0 AND salary_currency = 'RUR'
-                    GROUP BY company_id 
-                    ORDER BY AVG(salary) DESC
-                    """)
+            SELECT company_name, ROUND(AVG(salary), 0) AS "Средняя зарплата" 
+            FROM companies 
+            JOIN vacancies 
+            USING (company_id) 
+            WHERE salary > 0 AND salary_currency = 'RUR'
+            GROUP BY company_id 
+            ORDER BY AVG(salary) DESC
+            """)
             rows = cur.fetchall()
             for row in rows:
                 print(f'В компании "{row[0]}" средняя зарплата: {row[1]}.')
@@ -64,10 +64,36 @@ class DBManager:
         """
         получает список всех вакансий, у которых зарплата выше средней по всем вакансиям.
         """
-        pass
+        conn = psycopg2.connect(dbname=self.name_database, **self.params)
+        with conn.cursor() as cur:
+            cur.execute("""
+            SELECT company_name, vacancy_name, salary
+            FROM vacancies 
+            JOIN companies USING (company_id) 
+            WHERE salary > (SELECT AVG(salary) FROM vacancies WHERE salary_currency = 'RUR') AND salary_currency = 'RUR' 
+            ORDER BY salary DESC
+            """)
+            rows = cur.fetchall()
+            for row in rows:
+                print(f'Компания "{row[0]}". Вакансия: "{row[1]}". Зарплата: {row[2]}.')
 
-    def get_vacancies_with_keyword(self, word):
+    def get_vacancies_with_keyword(self, word: str):
         """
         получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
         """
-        pass
+        conn = psycopg2.connect(dbname=self.name_database, **self.params)
+        with conn.cursor() as cur:
+            cur.execute(f"""
+            SELECT company_name, vacancy_name, salary, vacancy_url
+            FROM vacancies
+            INNER JOIN companies USING (company_id)
+            WHERE vacancy_name LIKE '%{word}%'
+            """)
+            rows = cur.fetchall()
+            for row in rows:
+                salary = row[2]
+                if row[2] == 0:
+                    salary = 'не указана'
+                print(f'"{row[0]}": "{row[1]}". '
+                      f'Зарплата - {salary}. Ссылка на вакансию: {row[3]}')
+
