@@ -15,8 +15,8 @@ class DBManager:
         with conn.cursor() as cur:
             cur.execute('SELECT company_name, COUNT(*) AS "Кол-во вакансий" '
                         'FROM companies '
-                        'INNER JOIN vacancies '
-                        'USING(company_id) GROUP BY company_id '
+                        'INNER JOIN vacancies USING(company_id) '
+                        'GROUP BY company_id '
                         'ORDER BY "Кол-во вакансий" DESC')
             rows = cur.fetchall()
             for row in rows:
@@ -31,8 +31,7 @@ class DBManager:
             cur.execute("""
             SELECT companies.company_name, vacancy_name, salary, vacancy_url 
             FROM vacancies
-            INNER JOIN companies
-            USING (company_id)
+            INNER JOIN companies USING (company_id)
             WHERE salary > 0 AND salary_currency = 'RUR'
             ORDER BY salary DESC
             """)

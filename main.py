@@ -4,7 +4,7 @@ from src.DBManager import DBManager
 from src.config import config
 
 NAME_DATABASE = 'hh_ru_vacancies'
-EMPLOYER_ID = [1740, 2126550, 78638]
+EMPLOYER_ID = [1740, 78638, 2126550, 3776, 3778, 4872201, 5902137, 5094353, 2753595, 10145091, 4602050, 4262629, 2129243]
 
 
 def main():

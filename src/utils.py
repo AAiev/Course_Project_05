@@ -16,7 +16,7 @@ class ParsingError(Exception):
 def get_request(employer_id=None, url='https://api.hh.ru/vacancies'):
     """Запрос по API"""
     list_vacancies = []
-    for n in range(0, 20):
+    for n in range(0, 2):
         params = {"per_page": 100,
                   "page": 0 + n,
                   "employer_id": employer_id
