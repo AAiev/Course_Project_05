@@ -20,7 +20,7 @@ class DBManager:
                         'ORDER BY "Кол-во вакансий" DESC')
             rows = cur.fetchall()
             for row in rows:
-                print(row)
+                print(f'В компании "{row[0]}" - {row[1]} вакансий.')
 
     def get_all_vacancies(self):
         """
