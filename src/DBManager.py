@@ -96,4 +96,3 @@ class DBManager:
                     salary = 'не указана'
                 print(f'"{row[0]}": "{row[1]}". '
                       f'Зарплата - {salary}. Ссылка на вакансию: {row[3]}')
-
