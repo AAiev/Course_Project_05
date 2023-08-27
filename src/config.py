@@ -1,10 +1,10 @@
 from configparser import ConfigParser
 
 
-def config(filename="db_config.ini", section="postgresql"):
+def config(filename="database.ini", section="postgresql"):
     # создаем экземпляр ConfigParser
     parser = ConfigParser()
-    # производим чтение из файла db_config.ini
+    # производим чтение из файла database.ini
     parser.read(filename)
     db = {}
     if parser.has_section(section):
