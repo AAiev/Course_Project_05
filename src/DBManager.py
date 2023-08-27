@@ -29,11 +29,11 @@ class DBManager:
         conn = psycopg2.connect(dbname=self.name_database, **self.params)
         with conn.cursor() as cur:
             cur.execute("""
-            SELECT companies.company_name, vacancy_name, ((salary_from + salary_to)/2) AS salary, vacancy_url 
+            SELECT companies.company_name, vacancy_name, salary, vacancy_url 
             FROM vacancies
             INNER JOIN companies
             USING (company_id)
-            WHERE ((salary_from + salary_to)/2) > 0 AND salary_currency = 'RUR'
+            WHERE salary > 0 AND salary_currency = 'RUR'
             ORDER BY salary DESC
             """)
             rows = cur.fetchall()
@@ -45,7 +45,20 @@ class DBManager:
         """
         получает среднюю зарплату по вакансиям.
         """
-        pass
+        conn = psycopg2.connect(dbname=self.name_database, **self.params)
+        with conn.cursor() as cur:
+            cur.execute("""
+                    SELECT company_name, ROUND(AVG(salary), 0) AS "Средняя зарплата" 
+                    FROM companies 
+                    JOIN vacancies 
+                    USING (company_id) 
+                    WHERE salary > 0 AND salary_currency = 'RUR'
+                    GROUP BY company_id 
+                    ORDER BY AVG(salary) DESC
+                    """)
+            rows = cur.fetchall()
+            for row in rows:
+                print(f'В компании "{row[0]}" средняя зарплата: {row[1]}.')
 
     def get_vacancies_with_higher_salary(self):
         """
@@ -53,7 +66,7 @@ class DBManager:
         """
         pass
 
-    def get_vacancies_with_keyword(self):
+    def get_vacancies_with_keyword(self, word):
         """
         получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
         """
